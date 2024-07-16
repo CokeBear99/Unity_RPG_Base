@@ -1,5 +1,1 @@
-*.cs linguist-language=C#
-*.shader linguist-language=ShaderLab
-*.cginc linguist-language=ShaderLab
-*.compute linguist-language=ShaderLab
-*.hlsl linguist-language=HLSL
+/RPG-Base/* linguist-language=Python
