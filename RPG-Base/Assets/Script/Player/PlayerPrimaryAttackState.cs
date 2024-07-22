@@ -17,6 +17,8 @@ public class PlayerPrimaryAttackState : PlayerState
     {
         base.Enter();
 
+        xInput = 0; // fix attackDir bug
+
         if(comboCounter >2 || Time.time >= lastTimeAttacked + comboWindow)
         {
             comboCounter = 0;
@@ -61,7 +63,7 @@ public class PlayerPrimaryAttackState : PlayerState
 
         if(stateTimer <0)
         {
-            player.ZeroVelocity();
+            player.SetZeroVelocity();
         }
 
         if(triggerCalled)
