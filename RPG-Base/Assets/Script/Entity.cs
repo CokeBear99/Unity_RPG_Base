@@ -71,6 +71,9 @@ public class Entity : MonoBehaviour
     #region Collision
     public bool IsGroundDetected() => Physics2D.Raycast(groundCheck.position, Vector2.down, groundCheckDistance, whatIsGround);
     public bool IsWallDetected() => Physics2D.Raycast(wallcheck.position, Vector2.right * facingDir, wallCheckDistance, whatIsWall);
+
+    public bool IsWallEndDetected() => Physics2D.Raycast(new Vector2(wallcheck.position.x, wallcheck.position.y + 0.9f), Vector2.right * facingDir, wallCheckDistance, whatIsWall);
+
     protected virtual void OnDrawGizmos()
     {
         Gizmos.color = Color.cyan;
