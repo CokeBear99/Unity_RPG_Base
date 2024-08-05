@@ -22,7 +22,27 @@ public class PlayerMoveState : PlayerGroundState
     {
         base.Update();
 
-        player.SetVelocity(xInput * player.moveSpeed , rb.velocity.y);
+        player.SetVelocity(xInput * player.moveSpeed, rb.velocity.y);
+
+        if (player.IsStairDetected() == true)
+        {
+            rb.velocity = new Vector2(rb.velocity.x / 1.7f, rb.velocity.y);
+        }
+
+        /*
+        if (player.IsStairDetected() == false)
+        {
+            player.SetVelocity(xInput * player.moveSpeed , rb.velocity.y);
+        }
+        else
+        {
+            player.SetVelocity(xInput * player.moveSpeed / 2f , rb.velocity.y );
+        }
+        */
+
+
+
+
 
         if (xInput == 0 || player.IsWallDetected())
         {

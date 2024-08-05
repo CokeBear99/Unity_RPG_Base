@@ -14,6 +14,11 @@ public class Player : Entity
     public float jumpForce;
     public float swordReturnImpact;
 
+    [Header("Collision info")]
+    [SerializeField] protected Transform groundCheckBox;
+    [SerializeField] protected Vector2 groundCheckBoxSize;
+    [SerializeField] protected LayerMask whatIsStair;
+
     [Header("Dash info")]
     public float dashSpeed;
     public float dashDuration;
@@ -38,6 +43,7 @@ public class Player : Entity
 
     public PlayerCatchSwordState catchSwordState { get; private set; }
     public PlayerAimSwordState aimSwordState { get; private set; }
+    public PlayerBlackholeState blackholeState { get; private set; }
 
     #endregion
 
@@ -58,6 +64,7 @@ public class Player : Entity
         counterAttackState = new PlayerCounterAttackState(this, stateMachine, "CounterAttack");
         catchSwordState = new PlayerCatchSwordState(this, stateMachine, "CatchSword");
         aimSwordState = new PlayerAimSwordState(this, stateMachine, "AimSword");
+        blackholeState = new PlayerBlackholeState(this, stateMachine, "Jump");
     }
 
     protected override void Start()
@@ -116,6 +123,53 @@ public class Player : Entity
     {
         stateMachine.ChangeState(catchSwordState);
         Destroy(sword);
+    }
+
+    public void ExitBlackholeState()
+    {
+        stateMachine.ChangeState(airState);
+    }
+
+
+    void DrawRotatedWireCube(Vector3 position, Vector3 size, float angle)
+    {
+        Vector3 halfSize = size / 2;
+
+        // 각도에 따라 꼭지점 계산
+        Vector3 topRight = position + Quaternion.Euler(0, 0, angle) * new Vector3(halfSize.x, halfSize.y, 0);
+        Vector3 topLeft = position + Quaternion.Euler(0, 0, angle) * new Vector3(-halfSize.x, halfSize.y, 0);
+        Vector3 bottomRight = position + Quaternion.Euler(0, 0, angle) * new Vector3(halfSize.x, -halfSize.y, 0);
+        Vector3 bottomLeft = position + Quaternion.Euler(0, 0, angle) * new Vector3(-halfSize.x, -halfSize.y, 0);
+
+        // 사각형의 선 그리기
+        Gizmos.DrawLine(topLeft, topRight);
+        Gizmos.DrawLine(topRight, bottomRight);
+        Gizmos.DrawLine(bottomRight, bottomLeft);
+        Gizmos.DrawLine(bottomLeft, topLeft);
+    }
+
+    // OverlapBoxAll의 결과가 하나 이상 존재하는지 확인
+    public bool IsStairDetected()
+    {
+        Collider2D[] colliders = Physics2D.OverlapBoxAll(groundCheckBox.position, groundCheckBoxSize, 30f * facingDir, whatIsStair);
+
+        if (colliders.Length > 0)
+            return true;
+        else return false;
+    }
+
+    protected override void OnDrawGizmos()
+    {
+        base.OnDrawGizmos();
+
+        if (rb == null) 
+            return;
+        else
+        {
+            DrawRotatedWireCube(groundCheckBox.position, groundCheckBoxSize, 30f * facingDir);
+        }
+
+
     }
 
 

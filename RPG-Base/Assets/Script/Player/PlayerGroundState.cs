@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Data.Common;
 using UnityEngine;
 
 public class PlayerGroundState : PlayerState
@@ -16,12 +17,18 @@ public class PlayerGroundState : PlayerState
     public override void Exit()
     {
         base.Exit();
+
+        rb.isKinematic = false;
     }
 
     public override void Update()
     {
         base.Update();
 
+        if (Input.GetKeyDown(KeyCode.R) && SkillManager.instance.blackhole.GetCooldownTimer() < 0)
+        {
+            stateMachine.ChangeState(player.blackholeState);
+        }
 
         if (Input.GetKeyDown(KeyCode.Mouse1) && HasNoSword())
         {
@@ -38,20 +45,26 @@ public class PlayerGroundState : PlayerState
             stateMachine.ChangeState(player.primaryAttackState);
         }
 
-        if(player.IsGroundDetected () == false )
+        if(player.IsGroundDetected () == false && player.IsStairDetected() == false)
         {
             stateMachine.ChangeState(player.airState);
         }
 
+        if(player.IsStairDetected() == true)
+        {
+            if (xInput == 0)
+                rb.isKinematic = true;
+        }
 
-        if(Input.GetKeyDown(KeyCode.Space) && player.IsGroundDetected())
+        if (Input.GetKeyDown(KeyCode.Space) && player.IsGroundDetected())
         {
             stateMachine.ChangeState(player.jumpState);
         }
 
+
     }
 
-
+    
     private bool HasNoSword()
     {
         if( player.sword == null)
@@ -63,7 +76,6 @@ public class PlayerGroundState : PlayerState
         return false;
 
     }
-
 
 
 }

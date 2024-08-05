@@ -23,6 +23,7 @@ public class Enemy : Entity
     public float attackCooldown;
     [HideInInspector] public float lastTimeAttacked;
 
+    [SerializeField]private bool FreezeTrigger = false;
 
     public EnemyStateMachine stateMachine { get; private set; }
 
@@ -42,6 +43,8 @@ public class Enemy : Entity
     protected override void Update()
     {
         base.Update();
+
+        FreezeTime(FreezeTrigger);
 
         stateMachine.currentState.Update();
 
@@ -72,7 +75,23 @@ public class Enemy : Entity
         return false; 
     }
 
+    public void FreezeTime(bool _FreezeTrigger)
+    {
+        FreezeTrigger = _FreezeTrigger;
 
+        if(FreezeTrigger)
+        {
+            rb.constraints = RigidbodyConstraints2D.FreezeAll;
+            anim.speed = 0;
+        }
+        else
+        {
+            rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+            anim.speed = 1; // 원래 속도로 복원
+        }
+    }
+
+    
 
     public virtual RaycastHit2D IsPlayerDetected() => Physics2D.Raycast(BattleCheck.position, Vector2.right * facingDir,5, whatIsPlayer);
 

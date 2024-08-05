@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
+using UnityEditorInternal;
 using UnityEngine;
 
 public class Entity : MonoBehaviour
@@ -15,17 +16,20 @@ public class Entity : MonoBehaviour
     [SerializeField] protected LayerMask whatIsGround;
     [SerializeField] protected LayerMask whatIsWall;
 
+
     [Header("Knockback info")]
     [SerializeField] protected Vector2 knockbackDirection;
     [SerializeField] protected float KnockbackDuration;
     protected bool isKnocked;
+
+    private float targetAlpha = 1f; // 목표 알파값
 
     #region Components
     public Animator anim { get; private set; }
     public Rigidbody2D rb { get; private set; }
     public EntityFX fX { get; private set; }
     #endregion
-
+    public SpriteRenderer sr { get; private set; }
 
 
     public int facingDir { get; private set; } = 1; // 1 => 오른쪽 | -1 => 왼쪽
@@ -34,9 +38,9 @@ public class Entity : MonoBehaviour
     protected virtual void Awake()
     {
         anim = GetComponentInChildren<Animator>();
+        sr = GetComponentInChildren<SpriteRenderer>();
         rb = GetComponent<Rigidbody2D>();
         fX = GetComponent<EntityFX>();
-        
     }
 
     protected virtual void Start()
@@ -46,7 +50,14 @@ public class Entity : MonoBehaviour
 
     protected virtual void Update()
     {
-
+        #region ColorAlphaSet
+        // 현재 색상 가져오기
+        Color currentColor = sr.color;
+        // 알파값을 목표 알파값으로 서서히 변경
+        currentColor.a = Mathf.Lerp(currentColor.a, targetAlpha, 25f * Time.deltaTime);
+        // 색상 업데이트
+        sr.color = currentColor;
+        #endregion
     }
 
     protected virtual IEnumerator HitKnockback()
@@ -69,10 +80,16 @@ public class Entity : MonoBehaviour
     }
 
     #region Collision
+
+    // 수정필요
     public bool IsGroundDetected() => Physics2D.Raycast(groundCheck.position, Vector2.down, groundCheckDistance, whatIsGround);
+
     public bool IsWallDetected() => Physics2D.Raycast(wallcheck.position, Vector2.right * facingDir, wallCheckDistance, whatIsWall);
 
     public bool IsWallEndDetected() => Physics2D.Raycast(new Vector2(wallcheck.position.x, wallcheck.position.y + 0.9f), Vector2.right * facingDir, wallCheckDistance, whatIsWall);
+
+    
+
 
     protected virtual void OnDrawGizmos()
     {
@@ -80,8 +97,9 @@ public class Entity : MonoBehaviour
         Gizmos.DrawLine(groundCheck.position, new Vector3(groundCheck.position.x, groundCheck.position.y - groundCheckDistance));
 
         Gizmos.color = Color.green;
-        Gizmos.DrawLine(wallcheck.position, new Vector3(wallcheck.position.x + wallCheckDistance, wallcheck.position.y));
+        Gizmos.DrawLine(wallcheck.position, new Vector3(wallcheck.position.x + wallCheckDistance * facingDir, wallcheck.position.y));
         Gizmos.DrawWireSphere(attackCheck.position, attackCheckRadius);
+
     }
     #endregion
 
@@ -124,4 +142,16 @@ public class Entity : MonoBehaviour
     }
     #endregion
 
-}
+    public void MakeTransparent(bool _transparent)
+    {
+        if (_transparent)
+        {
+            targetAlpha = 0f; // 투명하게 만들기
+        }
+        else
+        {
+            targetAlpha = 1f; // 불투명하게 만들기
+        }
+    }
+
+}   

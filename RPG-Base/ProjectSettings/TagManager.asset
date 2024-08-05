@@ -15,7 +15,7 @@ TagManager:
   - Wall
   - Monster
   - Sword
-  - 
+  - Stair
   - 
   - 
   - 
@@ -46,6 +46,9 @@ TagManager:
     locked: 0
   - name: Ground
     uniqueID: 3112660965
+    locked: 0
+  - name: Stair
+    uniqueID: 1084142711
     locked: 0
   - name: Enemy
     uniqueID: 306922993
